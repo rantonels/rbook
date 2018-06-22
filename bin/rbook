@@ -1,0 +1,98 @@
+#!/usr/bin/python3
+
+from os.path import expanduser
+
+configPath = expanduser("~/.config/rbookrc")
+
+
+
+import configparser
+config = configparser.ConfigParser()
+config.read(configPath)
+section = config.sections()[0]
+
+BOOKDIR = expanduser(config.get(section,"path"))
+READER_APP = config.get(section,"reader")
+EXTENSIONS = [x.strip() for x in config.get(section,"extensions").split(',')]
+
+import string
+CHOICEALPH = string.digits + string.ascii_uppercase
+
+
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument("searchstring",type=str)
+args = parser.parse_args()
+tosearch = str.lower(args.searchstring)
+
+
+
+
+class Book:
+    def __init__(self,filename):
+        self.fname = filename
+        self.lname = str.lower(self.fname)
+
+
+from os import listdir,path,chdir
+from subprocess import call
+import glob
+
+#bookFilenames = listdir(BOOKDIR)
+
+bookFilenames = []
+chdir(BOOKDIR)
+for ext in EXTENSIONS:
+    bookFilenames.extend(glob.glob("*."+ext))
+
+
+
+books = [Book(fn) for fn in bookFilenames]
+
+
+selected = [b for b in books if (tosearch in b.lname)]
+
+if len(selected) == 0:
+    print("no matches.")
+    exit(1)
+elif(len(selected) == 1):
+    toOpen = selected[0]
+else:
+    selected_shown = selected[0:len(CHOICEALPH)]
+    
+
+    for i in range(len(selected_shown)):
+        b = selected_shown[i]
+        c = CHOICEALPH[i]
+        print("%c)....%s"%(c,b.fname))
+
+    if len(CHOICEALPH) < len(selected_shown):
+        print("%d more matches omitted..."%(len(selected_shown)-len(CHOICEALPH)))
+
+    choiceChar = input("Select choice: ").upper().strip()
+
+    if len(choiceChar) == 0:
+        exit(0)
+
+    if choiceChar[0] in CHOICEALPH: 
+        toOpenIndex = CHOICEALPH.index(choiceChar[0])
+        if toOpenIndex >= len(selected_shown):
+            exit(1)
+        toOpen = selected_shown[toOpenIndex]
+
+
+
+call([READER_APP, path.join(BOOKDIR,toOpen.fname)])
+
+
+
+
+
+
+
+
+
+#bookFilenamesSanitized = [fn.lower() for fn in bookFilenames]
+
+#print(bookFilenamesSanitized)
+
