@@ -2,3 +2,4 @@
 path = ~/books
 reader = zathura
 extensions = pdf,djvu
+prompt = False

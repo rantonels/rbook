@@ -15,15 +15,30 @@ BOOKDIR = expanduser(config.get(section,"path"))
 READER_APP = config.get(section,"reader")
 EXTENSIONS = [x.strip() for x in config.get(section,"extensions").split(',')]
 
+if config.has_option(section,"prompt"):
+    IFPROMPT = config.get(section,"prompt").strip() in ["true","True","yes","1","y","TRUE"]
+else:
+    IFPROMPT = True
+
+
 import string
 CHOICEALPH = string.digits + string.ascii_uppercase
 
 
 import argparse
 parser = argparse.ArgumentParser()
+
 parser.add_argument("searchstring",type=str)
+
+promptGroup = parser.add_mutually_exclusive_group()
+promptGroup.add_argument("-p","--prompt",action="store_true",default=IFPROMPT)
+promptGroup.add_argument("-y","--no-prompt",action="store_true")
+
 args = parser.parse_args()
+
 tosearch = str.lower(args.searchstring)
+
+ifPrompt = args.prompt
 
 
 
@@ -56,27 +71,31 @@ if len(selected) == 0:
 elif(len(selected) == 1):
     toOpen = selected[0]
 else:
-    selected_shown = selected[0:len(CHOICEALPH)]
-    
 
-    for i in range(len(selected_shown)):
-        b = selected_shown[i]
-        c = CHOICEALPH[i]
-        print("%c)....%s"%(c,b.fname))
+    if ifPrompt:
+        selected_shown = selected[0:len(CHOICEALPH)]
+        
 
-    if len(CHOICEALPH) < len(selected_shown):
-        print("%d more matches omitted..."%(len(selected_shown)-len(CHOICEALPH)))
+        for i in range(len(selected_shown)):
+            b = selected_shown[i]
+            c = CHOICEALPH[i]
+            print("%c)....%s"%(c,b.fname))
 
-    choiceChar = input("Select choice: ").upper().strip()
+        if len(CHOICEALPH) < len(selected_shown):
+            print("%d more matches omitted..."%(len(selected_shown)-len(CHOICEALPH)))
 
-    if len(choiceChar) == 0:
-        exit(0)
+        choiceChar = input("Select choice: ").upper().strip()
 
-    if choiceChar[0] in CHOICEALPH: 
-        toOpenIndex = CHOICEALPH.index(choiceChar[0])
-        if toOpenIndex >= len(selected_shown):
-            exit(1)
-        toOpen = selected_shown[toOpenIndex]
+        if len(choiceChar) == 0:
+            exit(0)
+
+        if choiceChar[0] in CHOICEALPH: 
+            toOpenIndex = CHOICEALPH.index(choiceChar[0])
+            if toOpenIndex >= len(selected_shown):
+                exit(1)
+            toOpen = selected_shown[toOpenIndex]
+    else:
+        toOpen = selected[0]
 
 
 
