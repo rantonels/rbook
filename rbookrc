@@ -1,0 +1,4 @@
+[RBOOK]
+path = ~/books
+reader = zathura
+extensions = pdf,djvu
