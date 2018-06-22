@@ -27,7 +27,6 @@ tosearch = str.lower(args.searchstring)
 
 
 
-
 class Book:
     def __init__(self,filename):
         self.fname = filename
@@ -38,7 +37,6 @@ from os import listdir,path,chdir
 from subprocess import call
 import glob
 
-#bookFilenames = listdir(BOOKDIR)
 
 bookFilenames = []
 chdir(BOOKDIR)
@@ -84,15 +82,4 @@ else:
 
 call([READER_APP, path.join(BOOKDIR,toOpen.fname)])
 
-
-
-
-
-
-
-
-
-#bookFilenamesSanitized = [fn.lower() for fn in bookFilenames]
-
-#print(bookFilenamesSanitized)
 
